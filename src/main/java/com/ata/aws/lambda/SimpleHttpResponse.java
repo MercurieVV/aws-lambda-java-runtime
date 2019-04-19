@@ -1,5 +1,6 @@
 package com.ata.aws.lambda;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -7,10 +8,10 @@ public class SimpleHttpResponse {
 
     private Integer responseCode;
     private Map<String, List<String>> headers;
-    private String body;
+    private InputStream body;
 
 
-    public SimpleHttpResponse(Integer responseCode, Map<String, List<String>> headers, String body) {
+    public SimpleHttpResponse(Integer responseCode, Map<String, List<String>> headers, InputStream body) {
         this.responseCode = responseCode;
         this.headers = headers;
         this.body = body;
@@ -24,7 +25,7 @@ public class SimpleHttpResponse {
         return headers;
     }
 
-    public String getBody() {
+    public InputStream getBody() {
         return body;
     }
 

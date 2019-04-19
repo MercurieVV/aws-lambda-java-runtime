@@ -2,10 +2,7 @@ package com.ata.aws.lambda;
 
 import java.io.*;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,12 +59,14 @@ public class LambdaBootstrap {
             requestId = getHeaderValue("Lambda-Runtime-Aws-Request-Id", event.getHeaders());
 
             try{
+                String invocationUrl = MessageFormat.format(LAMBDA_INVOCATION_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
+                final HttpURLConnection connection = (HttpURLConnection) new URL(invocationUrl).openConnection();
+                final OutputStream outputStream = connection.getOutputStream();
                 // Invoke Handler Method
-                String result = invoke(handlerClass, handlerMethod, event.getBody());
+                invoke(handlerClass, handlerMethod, event.getBody(), outputStream);
 
                 // Post the results of Handler Invocation
-                String invocationUrl = MessageFormat.format(LAMBDA_INVOCATION_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
-                post(invocationUrl, result);
+                post(connection);
             }
             catch (Exception e) {
                 String initErrorUrl = MessageFormat.format(LAMBDA_ERROR_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
@@ -140,15 +139,15 @@ public class LambdaBootstrap {
         return null;
     }
 
-    private static String invoke(Class handlerClass, Method handlerMethod, Object payload) throws Exception {
+    private static Object invoke(Class handlerClass, Method handlerMethod, Object inputStream, Object outputStream) throws Exception {
 
         Object myClassObj = handlerClass.getConstructor().newInstance();
-        Object[] args = new Object[]{payload};
+        Object[] args = new Object[]{inputStream, outputStream};
 
         // TODO: Handle overloads of handler method signatures depending on the parmCount.
         //int parmCount = handlerMethod.getParameterCount();
 
-        return (String) handlerMethod.invoke(myClassObj, args);
+        return handlerMethod.invoke(myClassObj, args);
     }
 
     private static String getHeaderValue(String header, Map<String, List<String>> headers) {
@@ -177,6 +176,25 @@ public class LambdaBootstrap {
         catch(IOException e) {
             System.out.println("GET: " + remoteUrl);
             e.printStackTrace();
+        }
+
+        return output;
+    }
+
+    private static SimpleHttpResponse post(final HttpURLConnection conn) {
+        SimpleHttpResponse output = null;
+
+        try{
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.connect();
+
+            // We can probably skip this for speed because we don't really care about the response
+            output = readResponse(conn);
+        }
+        catch(IOException ioe) {
+            System.out.println("POST: " + conn.getURL());
+            ioe.printStackTrace();
         }
 
         return output;
@@ -213,19 +231,7 @@ public class LambdaBootstrap {
             headers.put(entry.getKey(), entry.getValue());
         }
 
-        // Map Response Body
-        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        StringBuilder result = new StringBuilder();
-
-        String line;
-
-        while ((line = rd.readLine()) != null) {
-            result.append(line);
-        }
-
-        rd.close();
-
-        return new SimpleHttpResponse(conn.getResponseCode(), headers, result.toString());
+        return new SimpleHttpResponse(conn.getResponseCode(), headers, conn.getInputStream());
     }
 
     private static void setBody(HttpURLConnection conn, String body) throws IOException{
