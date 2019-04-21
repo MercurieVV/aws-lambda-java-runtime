@@ -10,3 +10,6 @@ repositories {
     mavenCentral()
 }
 
+dependencies{
+    compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.0'
+}
