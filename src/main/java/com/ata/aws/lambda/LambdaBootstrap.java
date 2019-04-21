@@ -1,8 +1,14 @@
 package com.ata.aws.lambda;
 
+import com.github.mercurievv.aws.lambda.nio.HttpClient;
+import com.github.mercurievv.aws.lambda.nio.HttpHandler;
+import com.github.mercurievv.aws.lambda.nio.HttpResponse;
+
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,31 +54,47 @@ public class LambdaBootstrap {
         }
 
 
-        String requestId;
         String runtimeUrl = MessageFormat.format(LAMBDA_RUNTIME_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE);
 
-        // Main event loop
-        while (true) {
+        try (HttpClient httpClient = new HttpClient()) {
+            while (true) {
 
-            // Get next Lambda Event
-            SimpleHttpResponse event = get(runtimeUrl);
-            requestId = getHeaderValue("Lambda-Runtime-Aws-Request-Id", event.getHeaders());
+                // Get next Lambda Event
+//                SimpleHttpResponse event = get(runtimeUrl);
+                String requestId;
 
-            try{
-                String invocationUrl = MessageFormat.format(LAMBDA_INVOCATION_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
-                final HttpURLConnection connection = (HttpURLConnection) new URL(invocationUrl).openConnection();
-                final OutputStream outputStream = connection.getOutputStream();
-                // Invoke Handler Method
-                invoke(handlerClass, handlerMethod, event.getBody(), outputStream);
+                try{
+//                    final HttpURLConnection connection = (HttpURLConnection) new URL(invocationUrl).openConnection();
+//                    final OutputStream outputStream = connection.getOutputStream();
+                    // Invoke Handler Method
+                    httpClient.get(URI.create(runtimeUrl), new HttpHandler() {
+                        @Override
+                        public void onHeader(HttpResponse response) {
+                            requestId = String.join(",", response.getHeaders().get("Lambda-Runtime-Aws-Request-Id"));
+                        }
 
-                // Post the results of Handler Invocation
-                post(connection);
+                        @Override
+                        public void onBody(ByteBuffer byteBuffer) {
+
+                            invoke(handlerClass, handlerMethod, event.getBody(), outputStream);
+                            String invocationUrl = MessageFormat.format(LAMBDA_INVOCATION_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
+                            httpClient.post(URI.create(invocationUrl), byteBuffer, postHandler);
+                        }
+                    });
+                    httpClient.waitAll();
+
+                    // Post the results of Handler Invocation
+//                    post(connection);
+                }
+                catch (Exception e) {
+                    String initErrorUrl = MessageFormat.format(LAMBDA_ERROR_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
+                    postError(initErrorUrl, "Invocation Error", "RuntimeError");
+                    e.printStackTrace();
+                }
             }
-            catch (Exception e) {
-                String initErrorUrl = MessageFormat.format(LAMBDA_ERROR_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
-                postError(initErrorUrl, "Invocation Error", "RuntimeError");
-                e.printStackTrace();
-            }
+        }        // Main event loop
+        catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
