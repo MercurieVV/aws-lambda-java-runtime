@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.amazonaws.services.lambda.runtime.*;
 
@@ -57,7 +58,9 @@ public class LambdaBootstrap {
 
             // Get next Lambda Event
             SimpleHttpResponse event = get(runtimeUrl);
-            requestId = getHeaderValue("Lambda-Runtime-Aws-Request-Id", event.getHeaders());
+            final Map<String, List<String>> headers = event.getHeaders();
+            System.out.println("headers = " + headers.entrySet().stream().map(o-> o.getKey()).collect(Collectors.joining()));
+            requestId = getHeaderValue("Lambda-Runtime-Aws-Request-Id", headers);
 
             try{
                 String invocationUrl = MessageFormat.format(LAMBDA_INVOCATION_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
