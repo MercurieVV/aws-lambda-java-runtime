@@ -26,6 +26,7 @@ chmod +x ./doit/bootstrap
 cd doit
 zip -r function.zip *
 aws lambda publish-layer-version --layer-name Java-11 --zip-file fileb://function.zip
+aws lambda list-layers
 
 #aws lambda create-function --function-name testJavaHandler \
 #--zip-file fileb://function.zip --handler SampleLambdaHandler::myHandler --runtime provided \
