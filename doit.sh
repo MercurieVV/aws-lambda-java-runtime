@@ -17,11 +17,12 @@ jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
 #   --output ./dist \
 #   --launcher bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap \
 #   --compress 2 --no-header-files --no-man-pages --strip-debug
+rm -rf doit
 mkdir doit
-mv -R ./dist doit
+mv ./dist doit
 touch ./doit/bootstrap
-echo "#!/bin/sh
-/opt/dist/bin/bootstrap" >> ./doit/bootstrap
+echo "#!/bin/sh" >> ./doit/bootstrap
+echo "/opt/dist/bin/bootstrap" >> ./doit/bootstrap
 chmod +x ./doit/bootstrap
 cd doit
 zip -r function.zip *
