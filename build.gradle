@@ -13,3 +13,15 @@ repositories {
 dependencies{
     compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.0'
 }
+
+ext.moduleName = 'com.ata.lambda'
+
+compileJava {
+    inputs.property('moduleName', moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath
+        ]
+        classpath = files()
+    }
+}
