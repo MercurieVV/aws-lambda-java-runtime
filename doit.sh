@@ -21,10 +21,8 @@ jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
 #   --compress 2 --no-header-files --no-man-pages --strip-debug
 rm -rf doit
 mkdir doit
-mv ./build/image doit
-touch ./doit/bootstrap
-echo "#!/bin/sh" >> ./doit/bootstrap
-echo "/opt/image/bin/bootstrap" >> ./doit/bootstrap
+cp ./build/dist doit
+cp bootstrap ./doit/bootstrap
 chmod +x ./doit/bootstrap
 cd doit
 zip -r function.zip *
