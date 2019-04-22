@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-c:\Program Files\Java\jdk-11.0.3\bin\
-export JAVA_HOME="c:\Program Files\Java\jdk-11.0.3"
-tar xvzf jdk-11.0.3_linux-x64_bin.tar.gz
+#c:\Program Files\Java\jdk-11.0.3\bin\
+#export JAVA_HOME="c:\Program Files\Java\jdk-11.0.3"
+#tar xvzf jdk-11.0.3_linux-x64_bin.tar.gz
 
-git clone https://github.com/MercurieVV/aws-lambda-java-runtime.git
+#git clone https://github.com/MercurieVV/aws-lambda-java-runtime.git
 
+git pull
 cd aws-lambda-java-runtime
 ./gradlew build
 jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
