@@ -25,3 +25,10 @@ compileJava {
         classpath = files()
     }
 }
+
+task copyToLib(type: Copy) {
+    into "$buildDir/output/libs"
+    from configurations.runtime
+}
+
+build.dependsOn(copyToLib)

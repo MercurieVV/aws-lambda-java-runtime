@@ -9,7 +9,7 @@ cd ~/aws-lambda-java-runtime
 git pull
 ./gradlew build
 jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
-   --add-modules  com.ata.lambda \
+   --add-modules  com.ata.lambda,aws.lambda.java.core \
    --output ./dist \
    --launcher bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap \
    --compress 2 --no-header-files --no-man-pages --strip-debug
