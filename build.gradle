@@ -14,34 +14,3 @@ targetCompatibility = 1.11
 repositories {
     mavenCentral()
 }
-
-dependencies{
-    compile group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.0'
-}
-
-ext.moduleName = 'com.ata.lambda'
-
-compileJava {
-    inputs.property('moduleName', moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath
-        ]
-        classpath = files()
-    }
-}
-
-jlink {
-    options = [
-//            '--output', './dist',
-//            '--launcher', 'bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap',
-            '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages'
-    ]
-    launcher{
-        name = 'hello'
-        jvmArgs = ['-Dlog4j.configurationFile=./log4j2.xml']
-    }
-    jpackage {
-        outputDir = './dist'
-    }
-}
