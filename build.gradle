@@ -27,7 +27,7 @@ compileJava {
 }
 
 task copyToLib(type: Copy) {
-    into "$buildDir/output/libs"
+    into "$buildDir/libs"
     from configurations.runtime
 }
 
