@@ -5,8 +5,8 @@
 
 #git clone https://github.com/MercurieVV/aws-lambda-java-runtime.git
 
+cd ~/aws-lambda-java-runtime
 git pull
-cd aws-lambda-java-runtime
 ./gradlew build
 jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
    --add-modules  com.ata.lambda \
