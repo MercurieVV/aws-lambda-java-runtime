@@ -7,12 +7,13 @@
 
 cd ~/aws-lambda-java-runtime
 git pull
-./gradlew build
-jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
-   --add-modules  com.ata.lambda,aws.lambda.java.core \
-   --output ./dist \
-   --launcher bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap \
-   --compress 2 --no-header-files --no-man-pages --strip-debug
+./gradlew jlink
+#echo "OK"
+#jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
+#   --add-modules  com.ata.lambda,aws.lambda.java.core \
+#   --output ./dist \
+#   --launcher bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap \
+#   --compress 2 --no-header-files --no-man-pages --strip-debug
 #jlink --module-path ./build/libs:./jdk-11.0.3/jmods \
 #   --add-modules  com.ata.lambda \
 #   --output ./dist \
@@ -20,10 +21,10 @@ jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
 #   --compress 2 --no-header-files --no-man-pages --strip-debug
 rm -rf doit
 mkdir doit
-mv ./dist doit
+mv ./build/image doit
 touch ./doit/bootstrap
 echo "#!/bin/sh" >> ./doit/bootstrap
-echo "/opt/dist/bin/bootstrap" >> ./doit/bootstrap
+echo "/opt/image/bin/bootstrap" >> ./doit/bootstrap
 chmod +x ./doit/bootstrap
 cd doit
 zip -r function.zip *

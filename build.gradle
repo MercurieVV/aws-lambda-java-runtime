@@ -1,7 +1,12 @@
+plugins {
+    id 'org.beryx.jlink' version '2.10.2'
+}
 apply plugin: 'java'
 
 group 'com.ata'
 version '1.0-SNAPSHOT'
+
+mainClassName='com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap'
 
 sourceCompatibility = 1.11
 targetCompatibility = 1.11
@@ -26,9 +31,17 @@ compileJava {
     }
 }
 
-task copyToLib(type: Copy) {
-    into "$buildDir/libs"
-    from configurations.runtime
+jlink {
+    options = [
+//            '--output', './dist',
+//            '--launcher', 'bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap',
+            '--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages'
+    ]
+    launcher{
+        name = 'hello'
+        jvmArgs = ['-Dlog4j.configurationFile=./log4j2.xml']
+    }
+    jpackage {
+        outputDir = './dist'
+    }
 }
-
-build.dependsOn(copyToLib)
