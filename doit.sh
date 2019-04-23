@@ -21,7 +21,7 @@ jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
 #   --compress 2 --no-header-files --no-man-pages --strip-debug
 rm -rf doit
 mkdir doit
-cp ./build/dist doit
+mv -r ./dist doit
 cp bootstrap ./doit/bootstrap
 chmod +x ./doit/bootstrap
 cd doit
