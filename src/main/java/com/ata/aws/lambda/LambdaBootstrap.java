@@ -65,6 +65,7 @@ public class LambdaBootstrap {
             try{
                 String invocationUrl = MessageFormat.format(LAMBDA_INVOCATION_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
                 final HttpURLConnection connection = (HttpURLConnection) new URL(invocationUrl).openConnection();
+                connection.setDoOutput(true);
                 final OutputStream outputStream = connection.getOutputStream();
                 // Invoke Handler Method
                 invoke(reqHandler, event.getBody(), outputStream, requestId);
