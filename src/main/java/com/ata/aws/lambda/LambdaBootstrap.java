@@ -66,6 +66,9 @@ public class LambdaBootstrap {
                 String invocationUrl = MessageFormat.format(LAMBDA_INVOCATION_URL_TEMPLATE, runtimeApi, LAMBDA_VERSION_DATE, requestId);
                 final HttpURLConnection connection = (HttpURLConnection) new URL(invocationUrl).openConnection();
                 connection.setDoOutput(true);
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                connection.connect();
                 final OutputStream outputStream = connection.getOutputStream();
                 // Invoke Handler Method
                 invoke(reqHandler, event.getBody(), outputStream, requestId);
@@ -239,9 +242,6 @@ public class LambdaBootstrap {
         SimpleHttpResponse output = null;
 
         try{
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            conn.connect();
 
             // We can probably skip this for speed because we don't really care about the response
             output = readResponse(conn);
