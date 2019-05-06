@@ -7,10 +7,13 @@
 #cd ~/aws-lambda-java-runtime;./doit.sh
 cd ~/aws-lambda-java-runtime
 git pull
+rm -rf doit
+rm -rf dist
+mkdir doit
 ./gradlew build
 #echo "OK"
 jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
-   --add-modules  com.ata.lambda,java.sql \
+   --add-modules  com.ata.lambda,java.sql,java.sql.rowset,java.rmi,java.logging \
    --output ./dist \
    --launcher bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap \
    --compress 2 --no-header-files --no-man-pages --strip-debug
@@ -19,8 +22,6 @@ jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
 #   --output ./dist \
 #   --launcher bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap \
 #   --compress 2 --no-header-files --no-man-pages --strip-debug
-rm -rf doit
-mkdir doit
 mv ./dist doit
 cp bootstrap ./doit/bootstrap
 chmod +x ./doit/bootstrap
