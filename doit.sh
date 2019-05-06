@@ -4,13 +4,13 @@
 #tar xvzf jdk-11.0.3_linux-x64_bin.tar.gz
 
 #git clone https://github.com/MercurieVV/aws-lambda-java-runtime.git
-
+#cd ~/aws-lambda-java-runtime;./doit.sh
 cd ~/aws-lambda-java-runtime
 git pull
 ./gradlew build
 #echo "OK"
 jlink --module-path ./build/libs:~/jdk-11.0.3/jmods \
-   --add-modules  com.ata.lambda \
+   --add-modules  com.ata.lambda,java.sql \
    --output ./dist \
    --launcher bootstrap=com.ata.lambda/com.ata.aws.lambda.LambdaBootstrap \
    --compress 2 --no-header-files --no-man-pages --strip-debug
